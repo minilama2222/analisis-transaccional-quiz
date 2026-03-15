@@ -187,11 +187,62 @@
     let seqDraggedItem = null;
     function seqDragStart(e) { seqDraggedItem = e.target; }
     function seqDragEnd(e) { seqDraggedItem = null; }
-    function seqDragOver(e) { e.preventDefault(); }
-    function seqDrop(e) { e.preventDefault(); const item = e.target.closest('.sequence-item'); if (item && seqDraggedItem && item !== seqDraggedItem) { const container = document.querySelector('.sequence-container'); if (item.nextSibling === seqDraggedItem) container.insertBefore(seqDraggedItem, item); else if (item.previousSibling === seqDraggedItem) container.insertBefore(item, seqDraggedItem); else { const items = [...container.querySelectorAll('.sequence-item')]; const fromIdx = items.indexOf(seqDraggedItem), toIdx = items.indexOf(item); if (fromIdx < toIdx) item.after(seqDraggedItem); else item.before(seqDraggedItem); } } }
+    function seqDragOver(e) { e.preventDefault(); e.target.closest('.sequence-item')?.classList.add('drag-over'); }
+    function seqDrop(e) { 
+        e.preventDefault(); 
+        const container = document.querySelector('.sequence-container');
+        const allItems = container.querySelectorAll('.sequence-item');
+        document.querySelectorAll('.sequence-item').forEach(i => i.classList.remove('drag-over'));
+        
+        const item = e.target.closest('.sequence-item'); 
+        if (item && seqDraggedItem && item !== seqDraggedItem) { 
+            const items = [...container.querySelectorAll('.sequence-item')]; 
+            const fromIdx = items.indexOf(seqDraggedItem), toIdx = items.indexOf(item); 
+            if (fromIdx < toIdx) item.after(seqDraggedItem); 
+            else item.before(seqDraggedItem); 
+            
+            // Update order numbers visually
+            updateSequenceNumbers();
+        } 
+    }
+    function updateSequenceNumbers() {
+        document.querySelectorAll('.sequence-item').forEach((el, idx) => {
+            el.querySelector('.order-num').textContent = idx + 1;
+        });
+    }
     function checkSequence() { const items = [...document.querySelectorAll('.sequence-item')].map(i => parseInt(i.getAttribute('data-original'))); const correct = JSON.stringify(items) === JSON.stringify(currentQ.correctOrder); if (correct) score++; answered = true; document.getElementById('next-btn').disabled = false; showFeedback(correct, currentQ.exp); }
-    function renderCaseQuestion(q) { document.getElementById('options').innerHTML = '<div class="case-study"><h4>📋 Caso clínico</h4><p>' + q.caseText + '</p></div><div class="options">' + q.opts.map((opt, i) => '<div class="option" onclick="selectOption(' + i + ')" data-index="' + i + '"><span class="letter">' + String.fromCharCode(65 + i) + '</span><span>' + opt + '</span></div>').join('') + '</div>'; }
-    function selectOption(index) { if (answered) return; answered = true; const q = currentQ; const options = document.querySelectorAll('.option'); let isCorrect = false; if (q.type === 'choice') { isCorrect = index === q.correct; } else if (q.type === 'case') { isCorrect = q.opts[index].includes(q.answer) || q.answer.includes(q.opts[index]); } options.forEach((opt, i) => { opt.classList.add('disabled'); if ((q.type === 'choice' && i === q.correct) || (q.type === 'case' && (q.opts[i].includes(q.answer) || q.answer.includes(q.opts[i])))) opt.classList.add('correct'); else if (i === index && !isCorrect) opt.classList.add('incorrect'); }); if (isCorrect) score++; showFeedback(isCorrect, q.exp); document.getElementById('next-btn').disabled = false; document.getElementById('next-btn').textContent = currentQuestion >= 9 ? 'Ver resultados' : 'Siguiente'; }
+    function renderCaseQuestion(q) { 
+        document.getElementById('options').innerHTML = '<div class="case-study"><h4>📋 Caso clínico</h4><p>' + q.caseText + '</p></div><input type="text" id="case-answer" placeholder="Escribe tu respuesta..." style="width:100%;padding:12px;border-radius:8px;border:2px solid var(--border);background:var(--secondary);color:var(--text);margin-top:15px;font-size:1rem;"><button class="btn" onclick="submitCaseAnswer()" style="margin-top:12px">Responder</button>'; 
+    }
+    function submitCaseAnswer() {
+        if (answered) return;
+        const userAnswer = document.getElementById('case-answer').value.trim().toLowerCase();
+        const correctAnswer = currentQ.answer.toLowerCase();
+        // Check if user's answer contains key parts of the correct answer
+        const keyWords = correctAnswer.split(/[\/\,\s]+/).filter(w => w.length > 2);
+        const isCorrect = keyWords.some(keyword => userAnswer.includes(keyword)) || userAnswer.length > 0 && correctAnswer.includes(userAnswer);
+        
+        answered = true;
+        if (isCorrect) score++;
+        
+        // Show the correct answer in the feedback
+        const feedbackText = isCorrect ? currentQ.exp : 'La respuesta correcta era: ' + currentQ.answer + '. ' + currentQ.exp;
+        showFeedback(isCorrect, feedbackText);
+        document.getElementById('next-btn').disabled = false;
+        document.getElementById('next-btn').textContent = currentQuestion >= 9 ? 'Ver resultados' : 'Siguiente';
+    }
+    function selectOption(index) { 
+        if (answered) return; 
+        answered = true; 
+        const q = currentQ; 
+        const options = document.querySelectorAll('.option'); 
+        let isCorrect = false; 
+        if (q.type === 'choice') { 
+            isCorrect = index === q.correct; 
+        } else if (q.type === 'case') { 
+            // This shouldn't be reached now as case uses submitCaseAnswer
+            return;
+        } options.forEach((opt, i) => { opt.classList.add('disabled'); if ((q.type === 'choice' && i === q.correct) || (q.type === 'case' && (q.opts[i].includes(q.answer) || q.answer.includes(q.opts[i])))) opt.classList.add('correct'); else if (i === index && !isCorrect) opt.classList.add('incorrect'); }); if (isCorrect) score++; showFeedback(isCorrect, q.exp); document.getElementById('next-btn').disabled = false; document.getElementById('next-btn').textContent = currentQuestion >= 9 ? 'Ver resultados' : 'Siguiente'; }
     function showFeedback(isCorrect, text) { const fb = document.getElementById('feedback'); fb.classList.add('show', isCorrect ? 'correct' : 'incorrect'); document.getElementById('feedback-title').textContent = isCorrect ? '✓ ¡Correcto!' : '✗ Incorrecto'; document.getElementById('feedback-text').textContent = text; }
     function nextQuestion() { currentQuestion++; if (currentQuestion >= 10) showResults(); else loadQuestion(); }
     function showResults() { clearInterval(timerInterval); const percentage = (score / 10) * 100; document.getElementById('score').textContent = percentage; document.getElementById('score-label').textContent = 'Has acertado ' + score + ' de 10 preguntas'; let message = ''; if (percentage === 100) message = '¡Excelente! Dominas este nivel 🎉'; else if (percentage >= 80) message = '¡Muy bien! 🏆'; else if (percentage >= 60) message = '¡Buen trabajo! 📚'; else if (percentage >= 40) message = 'Tienes la base, sigue estudiando 💪'; else message = '¡Anímata a aprender más! 🌱'; document.getElementById('result-message').textContent = message; document.getElementById('result-details').textContent = 'Nivel: ' + levelNames[currentLevel] + ' | Puntuación: ' + score + '/10'; showScreen('results-screen'); }
