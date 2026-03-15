@@ -3,651 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análisis Transaccional - Juego de Preguntas</title>
+    <title>Análisis Transaccional - Juego Expandido</title>
     <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --success: #27ae60;
-            --error: #e74c3c;
-            --warning: #f39c12;
-            --light: #ecf0f1;
-            --dark: #1a252f;
-            --shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            max-width: 700px;
-            width: 100%;
-            overflow: hidden;
-            animation: slideUp 0.5s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 0.95rem;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .screen {
-            display: none;
-        }
-
-        .screen.active {
-            display: block;
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* Level Selection */
-        .level-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .level-card {
-            background: var(--light);
-            border: 2px solid transparent;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .level-card:hover {
-            border-color: var(--secondary);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow);
-        }
-
-        .level-card h3 {
-            color: var(--primary);
-            margin-bottom: 8px;
-            font-size: 1.1rem;
-        }
-
-        .level-card p {
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .level-card.beginner { border-top: 4px solid #27ae60; }
-        .level-card.intermediate { border-top: 4px solid #f39c12; }
-        .level-card.advanced { border-top: 4px solid #e74c3c; }
-
-        /* Quiz Screen */
-        .quiz-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--light);
-        }
-
-        .quiz-header .level-badge {
-            background: var(--secondary);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .quiz-header .progress {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .question {
-            font-size: 1.15rem;
-            color: var(--dark);
-            margin-bottom: 25px;
-            line-height: 1.6;
-        }
-
-        .options {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .option {
-            background: var(--light);
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            padding: 15px 20px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .option:hover:not(.disabled) {
-            border-color: var(--secondary);
-            background: #f8f9ff;
-        }
-
-        .option .letter {
-            background: var(--primary);
-            color: white;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 0.85rem;
-            flex-shrink: 0;
-        }
-
-        .option.correct {
-            background: #d4edda;
-            border-color: var(--success);
-        }
-
-        .option.correct .letter {
-            background: var(--success);
-        }
-
-        .option.incorrect {
-            background: #f8d7da;
-            border-color: var(--error);
-        }
-
-        .option.incorrect .letter {
-            background: var(--error);
-        }
-
-        .option.disabled {
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        .feedback {
-            margin-top: 25px;
-            padding: 20px;
-            border-radius: 10px;
-            display: none;
-            animation: slideUp 0.3s ease-out;
-        }
-
-        .feedback.show {
-            display: block;
-        }
-
-        .feedback.correct {
-            background: #d4edda;
-            border-left: 4px solid var(--success);
-        }
-
-        .feedback.incorrect {
-            background: #f8d7da;
-            border-left: 4px solid var(--error);
-        }
-
-        .feedback h4 {
-            margin-bottom: 10px;
-            font-size: 1rem;
-        }
-
+        :root { --primary: #1a1a2e; --secondary: #16213e; --accent: #e94560; --success: #00d9a5; --error: #ff6b6b; --warning: #ffd93d; --dark: #0f0f1a; --text: #e0e0e0; --text-muted: #a0a0a0; --card-bg: #1e1e32; --border: #2a2a4a; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 50%, var(--secondary) 100%); min-height: 100vh; color: var(--text); padding: 20px; }
+        .container { background: var(--card-bg); border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); max-width: 800px; width: 100%; overflow: hidden; animation: slideUp 0.5s ease-out; border: 1px solid var(--border); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .header { background: linear-gradient(135deg, var(--accent), #c73e54); color: white; padding: 25px 30px; text-align: center; }
+        .header h1 { font-size: 1.6rem; margin-bottom: 8px; }
+        .header p { opacity: 0.9; font-size: 0.9rem; }
+        .content { padding: 25px; }
+        .screen { display: none; }
+        .screen.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .progress-container { background: var(--border); height: 8px; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--success), var(--accent)); border-radius: 4px; transition: width 0.5s ease; }
+        .quiz-stats { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 12px 15px; background: var(--secondary); border-radius: 10px; font-size: 0.9rem; }
+        .timer { display: flex; align-items: center; gap: 8px; color: var(--warning); font-weight: 600; }
+        .timer.warning { color: var(--error); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .level-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px; }
+        .level-card { background: var(--secondary); border: 2px solid transparent; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s ease; }
+        .level-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 25px rgba(233, 69, 96, 0.2); }
+        .level-card h3 { color: var(--text); margin-bottom: 8px; font-size: 1rem; }
+        .level-card p { font-size: 0.8rem; color: var(--text-muted); }
+        .level-card.beginner { border-top: 4px solid var(--success); }
+        .level-card.intermediate { border-top: 4px solid var(--warning); }
+        .level-card.advanced { border-top: 4px solid var(--accent); }
+        .level-card.expert { border-top: 4px solid #9b59b6; }
+        .question { font-size: 1.1rem; margin-bottom: 20px; line-height: 1.5; }
+        .question-type { display: inline-block; background: var(--accent); color: white; padding: 4px 12px; border-radius: 15px; font-size: 0.75rem; margin-bottom: 15px; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .option { background: var(--secondary); border: 2px solid var(--border); border-radius: 10px; padding: 14px 18px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 12px; }
+        .option:hover:not(.disabled) { border-color: var(--accent); background: #252545; }
+        .option .letter { background: var(--accent); color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8rem; flex-shrink: 0; }
+        .option.correct { background: rgba(0, 217, 165, 0.2); border-color: var(--success); }
+        .option.correct .letter { background: var(--success); }
+        .option.incorrect { background: rgba(255, 107, 107, 0.2); border-color: var(--error); }
+        .option.incorrect .letter { background: var(--error); }
+        .option.disabled { cursor: not-allowed; opacity: 0.6; }
+        .drag-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+        .drag-column h4 { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px; text-transform: uppercase; }
+        .drag-item { background: var(--secondary); border: 2px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; cursor: grab; transition: all 0.2s ease; }
+        .drag-item:hover { border-color: var(--accent); }
+        .drag-item.matched { background: rgba(0, 217, 165, 0.2); border-color: var(--success); }
+        .drop-zone { min-height: 50px; border: 2px dashed var(--border); border-radius: 8px; padding: 10px; margin-bottom: 8px; transition: all 0.2s ease; }
+        .drop-zone.drag-over { border-color: var(--accent); background: rgba(233, 69, 96, 0.1); }
+        .drop-zone.filled { border-style: solid; }
+        .sequence-container { margin-top: 15px; }
+        .sequence-item { background: var(--secondary); border: 2px solid var(--border); border-radius: 8px; padding: 12px 15px; margin-bottom: 8px; cursor: grab; display: flex; align-items: center; gap: 10px; transition: all 0.2s ease; }
+        .sequence-item:hover { border-color: var(--accent); }
+        .sequence-item .order-num { background: var(--accent); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; }
+        .case-study { background: var(--secondary); border-left: 4px solid var(--accent); padding: 15px; border-radius: 0 8px 8px 0; margin-bottom: 20px; }
+        .case-study h4 { color: var(--accent); margin-bottom: 10px; font-size: 0.9rem; }
+        .case-study p { font-size: 0.9rem; line-height: 1.5; color: var(--text-muted); font-style: italic; }
+        .feedback { margin-top: 20px; padding: 18px; border-radius: 10px; display: none; animation: slideUp 0.3s ease-out; }
+        .feedback.show { display: block; }
+        .feedback.correct { background: rgba(0, 217, 165, 0.15); border-left: 4px solid var(--success); }
+        .feedback.incorrect { background: rgba(255, 107, 107, 0.15); border-left: 4px solid var(--error); }
+        .feedback h4 { margin-bottom: 8px; font-size: 0.95rem; }
         .feedback.correct h4 { color: var(--success); }
         .feedback.incorrect h4 { color: var(--error); }
-
-        .feedback p {
-            color: #444;
-            line-height: 1.5;
-            font-size: 0.95rem;
-        }
-
-        .btn {
-            background: var(--secondary);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-top: 20px;
-        }
-
-        .btn:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .btn:disabled {
-            background: #bdc3c7;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        /* Results Screen */
-        .results {
-            text-align: center;
-        }
-
-        .score-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--secondary), var(--primary));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 30px auto;
-            color: white;
-            font-size: 2.5rem;
-            font-weight: 700;
-            box-shadow: 0 10px 30px rgba(52, 152, 219, 0.3);
-        }
-
-        .score-label {
-            color: #666;
-            font-size: 1rem;
-            margin-top: -20px;
-            margin-bottom: 20px;
-        }
-
-        .result-message {
-            font-size: 1.2rem;
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-
-        .result-details {
-            color: #666;
-            margin-bottom: 30px;
-        }
-
-        .results .btn-group {
-            margin-top: 30px;
-        }
-
-        .btn-secondary {
-            background: var(--light);
-            color: var(--primary);
-        }
-
-        .btn-secondary:hover {
-            background: #dfe6e9;
-        }
-
-        @media (max-width: 600px) {
-            .level-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .container {
-                border-radius: 15px;
-            }
-            
-            .content {
-                padding: 20px;
-            }
-            
-            .quiz-header {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
+        .feedback p { color: var(--text-muted); line-height: 1.5; font-size: 0.9rem; }
+        .btn { background: var(--accent); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 0.95rem; cursor: pointer; transition: all 0.2s ease; margin-top: 18px; }
+        .btn:hover { background: #d63d56; transform: translateY(-2px); }
+        .btn:disabled { background: #555; cursor: not-allowed; transform: none; }
+        .btn-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+        .btn-secondary { background: var(--secondary); border: 2px solid var(--border); }
+        .btn-secondary:hover { background: var(--border); }
+        .results { text-align: center; }
+        .score-circle { width: 140px; height: 140px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #c73e54); display: flex; align-items: center; justify-content: center; margin: 25px auto; color: white; font-size: 2.2rem; font-weight: 700; box-shadow: 0 10px 30px rgba(233, 69, 96, 0.3); }
+        .score-label { color: var(--text-muted); font-size: 0.9rem; margin-top: -15px; margin-bottom: 15px; }
+        .result-message { font-size: 1.1rem; color: var(--text); margin-bottom: 8px; }
+        .result-details { color: var(--text-muted); margin-bottom: 25px; font-size: 0.9rem; }
+        @media (max-width: 600px) { .level-grid { grid-template-columns: 1fr; } .drag-container { grid-template-columns: 1fr; } .quiz-stats { flex-direction: column; gap: 10px; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>📊 Análisis Transaccional</h1>
-            <p>Descubre los secretos de la comunicación humana</p>
-        </div>
-        
+        <div class="header"><h1>🎭 Análisis Transaccional</h1><p>Domina los secretos de la comunicación humana</p></div>
         <div class="content">
-            <!-- Pantalla de selección de nivel -->
             <div id="level-screen" class="screen active">
-                <h2 style="text-align: center; color: var(--primary); margin-bottom: 10px;">Elige tu nivel</h2>
-                <p style="text-align: center; color: #666; margin-bottom: 20px;">Selecciona un nivel para comenzar el test</p>
-                
+                <h2 style="text-align: center; color: var(--text); margin-bottom: 8px;">Elige tu nivel</h2>
+                <p style="text-align: center; color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;">10 preguntas por nivel • Nuevos tipos de interacción</p>
                 <div class="level-grid">
-                    <div class="level-card beginner" onclick="startQuiz('beginner')">
-                        <h3>🌱 Principiante</h3>
-                        <p>Conceptos básicos: Estados del Yo y transacciones</p>
-                    </div>
-                    <div class="level-card intermediate" onclick="startQuiz('intermediate')">
-                        <h3>📈 Medio</h3>
-                        <p>Tipos de transacciones y juegos psicológicos</p>
-                    </div>
-                    <div class="level-card advanced" onclick="startQuiz('advanced')">
-                        <h3>🎓 Avanzado</h3>
-                        <p>Scripts de vida y aplicaciones clínicas</p>
-                    </div>
+                    <div class="level-card beginner" onclick="startQuiz('beginner')"><h3>🌱 Principiante</h3><p>Estados del Yo, Transacciones básicas</p></div>
+                    <div class="level-card intermediate" onclick="startQuiz('intermediate')"><h3>📈 Intermedio</h3><p>8 tipos de transacciones, Triángulo de Karpman</p></div>
+                    <div class="level-card advanced" onclick="startQuiz('advanced')"><h3>🎓 Avanzado</h3><p>Scripts de vida, Juegos psicológicos</p></div>
+                    <div class="level-card expert" onclick="startQuiz('expert')"><h3>⚡ Experto</h3><p>Contracts therapy, Casos prácticos</p></div>
                 </div>
             </div>
-
-            <!-- Pantalla del quiz -->
             <div id="quiz-screen" class="screen">
-                <div class="quiz-header">
+                <div class="progress-container"><div class="progress-bar" id="progress-bar" style="width: 0%"></div></div>
+                <div class="quiz-stats">
                     <span class="level-badge" id="level-badge">Principiante</span>
-                    <span class="progress" id="progress">Pregunta 1 de 5</span>
+                    <div class="timer" id="timer"><span>⏱️</span><span id="time-display">2:00</span></div>
+                    <span class="progress" id="progress">1/10</span>
                 </div>
-                
-                <div class="question" id="question"></div>
-                
-                <div class="options" id="options"></div>
-                
-                <div class="feedback" id="feedback">
-                    <h4 id="feedback-title"></h4>
-                    <p id="feedback-text"></p>
-                </div>
-                
-                <div style="text-align: center;">
-                    <button class="btn" id="next-btn" onclick="nextQuestion()" disabled>Siguiente pregunta</button>
-                </div>
+                <div id="question-area"><span class="question-type" id="question-type">Pregunta</span>
+                <div class="question" id="question"></div><div class="options" id="options"></div></div>
+                <div class="feedback" id="feedback"><h4 id="feedback-title"></h4><p id="feedback-text"></p></div>
+                <div style="text-align: center;"><button class="btn" id="next-btn" onclick="nextQuestion()" disabled>Siguiente</button></div>
             </div>
-
-            <!-- Pantalla de resultados -->
             <div id="results-screen" class="screen results">
-                <h2 style="color: var(--primary);">¡Test completado!</h2>
-                
-                <div class="score-circle">
-                    <span id="score">0</span>%
-                </div>
-                
+                <h2 style="color: var(--text);">¡Test completado!</h2>
+                <div class="score-circle"><span id="score">0</span>%</div>
                 <p class="score-label" id="score-label">Tu puntuación</p>
                 <p class="result-message" id="result-message"></p>
                 <p class="result-details" id="result-details"></p>
-                
-                <div class="results .btn-group">
-                    <button class="btn" onclick="restartGame()">Volver a jugar</button>
-                    <button class="btn btn-secondary" onclick="goToLevelSelection()">Cambiar nivel</button>
-                </div>
+                <div class="btn-group"><button class="btn" onclick="restartGame()">Volver a jugar</button><button class="btn btn-secondary" onclick="goToLevelSelection()">Cambiar nivel</button></div>
             </div>
         </div>
     </div>
-
     <script>
-        const questions = {
-            beginner: [
-                {
-                    question: "¿Cuáles son los tres Estados del Yo según el Análisis Transaccional?",
-                    options: ["Padre, Adulto, Niño", "Yo, Tú, Él", "Pasado, Presente, Futuro", "Razón, Emoción, Instinto"],
-                    correct: 0,
-                    explanation: "Los tres Estados del Yo son: Padre (P), Adulto (A) y Niño (N). Forman el modelo fundamental del Análisis Transaccional desarrollado por Eric Berne."
-                },
-                {
-                    question: "¿Qué representa el Estado del Niño en una persona adulta?",
-                    options: ["Solo comportamientos adultos y racionales", "Comportamientos, feelings y actitudes primitivas", "Solo la parte autoritaria y crítica", "Únicamente comportamientos aprendidos"],
-                    correct: 1,
-                    explanation: "El Niño representa la parte más primaria y emocional de nuestra personalidad, incluyendo necesidades, deseos, miedos y comportamientos adaptados de la infancia."
-                },
-                {
-                    question: "¿Qué es una transacción en Análisis Transaccional?",
-                    options: ["Una operación bancaria", "Un intercambio de palabras entre dos personas", "Una terapia de grupo", "Un conflicto familiar"],
-                    correct: 1,
-                    explanation: "Una transacción es la unidad básica de comunicación social, consistente en un estímulo y una respuesta entre dos o más personas."
-                },
-                {
-                    question: "¿Cuál es la función principal del Estado Adulto?",
-                    options: ["Proteger y cuidar a los demás", "Procesar información de forma objetiva y tomar decisiones", "Recibir cariño y atención", "Controlar y castigar errores"],
-                    correct: 1,
-                    explanation: "El Adulto es el estado que procesa información de forma racional,weighs options, y toma decisiones basadas en la realidad objetiva."
-                },
-                {
-                    question: "¿Cuándo surge el Estado del Padre?",
-                    options: ["En la adolescencia", "Durante toda la vida", "En la primera infancia a través de internalización", "Solo en situaciones de emergencia"],
-                    correct: 2,
-                    explanation: "El Padre se desarrolla en la primera infancia mediante la internalización de comportamientos, actitudes y valores observados en las figuras parentales."
-                }
-            ],
-            intermediate: [
-                {
-                    question: "¿Qué es una transacción complementaria?",
-                    options: ["Cuando ambas personas hablan de temas diferentes", "Cuando el estímulo y la respuesta van en la misma dirección", "Cuando hay un conflicto abierto", "Cuando interviene un tercero"],
-                    correct: 1,
-                    explanation: "Una transacción complementaria ocurre cuando la respuesta corresponde al Estado del Yo del estímulo original. Es decir, si alguien habla desde su Adulto, la respuesta también viene desde Adulto."
-                },
-                {
-                    question: "¿Qué es el Triángulo de Karpman?",
-                    options: ["Un ejercicio de meditación", "Un modelo de roles en juegos psicológicos: Víctima, Perseguidor, Salvador", "Un tipo de transacción", "Una técnica de relajación"],
-                    correct: 1,
-                    explanation: "El Triángulo de Karpman muestra los tres roles típicos en los juegos psicológicos: Víctima (se siente atacada), Perseguidor (critica y culpa), y Salvador (intenta ayudar)."
-                },
-                {
-                    question: "¿Qué es un 'juego psicológico' según el AT?",
-                    options: ["Una actividad recreativa", "Una secuencia de transacciones con una sorpresa negativa", "Una técnica de comunicación efectiva", "Una forma de resolver conflictos"],
-                    correct: 1,
-                    explanation: "Un juego psicológico es una serie de transacciones que parecen razonables pero terminan con un resultado negativo ('payoff') que deja a todos insatisfechos."
-                },
-                {
-                    question: "¿Qué es una transacción cruzada?",
-                    options: ["Cuando dos personas se ponen de acuerdo", "Cuando la respuesta no corresponde al Estado del Yo esperado", "Cuando hay más de dos personas", "Cuando el mensaje es ambiguo"],
-                    correct: 1,
-                    explanation: "Una transacción cruzada ocurre cuando la respuesta viene desde un Estado del Yo diferente al que se dirigió el estímulo original, usualmente causando confusión o conflicto."
-                },
-                {
-                    question: "¿Cuál de estos es un ejemplo de juego psicológico común?",
-                    options: ["Diálogo abierto entre amigos", "Sí, pero... (Yes, but...)", "Agradecimiento sincero", "Pedir ayuda de forma directa"],
-                    correct: 1,
-                    explanation: "'Sí, pero...' es un juego clásico donde la persona pide ayuda pero rechaza todas las soluciones, buscando atención o confirmación de su situación."
-                }
-            ],
-            advanced: [
-                {
-                    question: "¿Qué es un 'script de vida' en Análisis Transaccional?",
-                    options: ["Un guión teatral", "Un plan de vida consciente", "Un programa de vida inconsciente decidido en la infancia", "Un documento legal"],
-                    correct: 2,
-                    explanation: "El script de vida es un programa de vida inconsciente, mostly desarrollado en la infancia, que determina cómo una persona vive, siente y se relaciona."
-                },
-                {
-                    question: "¿Qué significa 'rackets' en el contexto del AT?",
-                    options: ["Una raqueta de tenis", "Sentimientos falseados para obtener una pay-off", "Un tipo de transacción", "Un estado del yo"],
-                    correct: 1,
-                    explanation: "Los rackets son sentimientos falseados o exagerados que una persona utiliza para obtener un beneficio psicológico (pay-off) y confirmar su script de vida."
-                },
-                {
-                    question: "¿Qué son los 'bargains' o 'contractos' en AT?",
-                    options: ["Acuerdos comerciales", "Acuerdos explícitos entre terapeuta y cliente para el cambio", "Tipos de preguntas", "Niveles de comunicación"],
-                    correct: 1,
-                    explanation: "Los contracts son acuerdos explícitos y mutuos entre el terapeuta y el cliente sobre los objetivos del tratamiento, base fundamental de la terapia transactional."
-                },
-                {
-                    question: "¿Qué es la 'arqueología existencial' en Análisis Transaccional?",
-                    options: ["Excavar ruinas antiguas", "Explorar y entender las decisiones de script de la primera infancia", "Un tipo de meditación", "Un método de diagnóstico médico"],
-                    correct: 1,
-                    explanation: "La arqueología existencial es el proceso de descubrir y examinar las decisiones fundamentales que hicimos en la infancia que forman nuestro script de vida."
-                },
-                {
-                    question: "¿Cuál es el objetivo principal de la terapia basada en Análisis Transaccional?",
-                    options: ["Prescribir medicamentos", "Ayudar al cliente a lograr autonomía y libertad de脚本", "Analizar el pasado únicamente", "Controlar el comportamiento"],
-                    correct: 1,
-                    explanation: "El objetivo del AT es ayudar a las personas a lograr autonomía: conciencia, intimidad y espontaneidad, libre de las limitaciones de su script de vida."
-                }
-            ]
-        };
+    const questions = {
+        beginner: [
+            { type: 'choice', q: "¿Cuáles son los tres Estados del Yo según el Análisis Transaccional?", opts: ["Padre, Adulto, Niño", "Yo, Tú, Él", "Pasado, Presente, Futuro", "Razón, Emoción, Instinto"], correct: 0, exp: "Los tres Estados del Yo son: Padre (P), Adulto (A) y Niño (N)." },
+            { type: 'choice', q: "¿Qué representa el Estado del Niño?", opts: ["Solo comportamientos racionales", "Comportamientos, feelings y actitudes primitivas", "Solo la parte autoritaria", "Únicamente aprendizajes adultos"], correct: 1, exp: "El Niño representa la parte más primaria y emocional, incluyendo necesidades y miedos." },
+            { type: 'choice', q: "¿Qué es una transacción en AT?", opts: ["Una operación bancaria", "Un intercambio de palabras entre dos personas", "Una terapia de grupo", "Un conflicto familiar"], correct: 1, exp: "Una transacción es la unidad básica de comunicación social." },
+            { type: 'choice', q: "¿Cuál es la función principal del Estado Adulto?", opts: ["Proteger y cuidar a otros", "Procesar información de forma objetiva", "Recibir cariño", "Controlar y castigar"], correct: 1, exp: "El Adulto procesa información de forma racional." },
+            { type: 'choice', q: "¿Cuándo surge el Estado del Padre?", opts: ["En la adolescencia", "Durante toda la vida", "En la primera infancia por internalización", "Solo en emergencias"], correct: 2, exp: "El Padre se desarrolla en la primera infancia por internalización." },
+            { type: 'match', q: "Empareja cada Estado del Yo con su descripción:", pairs: [{ item: "Estado Padre", match: "Normas, valores y cuidados internalizados" }, { item: "Estado Adulto", match: "Procesamiento objetivo de información" }, { item: "Estado Niño", match: "Emociones, necesidades y creatividad" }], exp: "El Padre tiene normas, el Adulto procesa, el Niño tiene emociones." },
+            { type: 'sequence', q: "Ordena cronológicamente el desarrollo de los Estados del Yo:", items: ["Niño (desarrollo temprano)", "Padre (internalización)", "Adulto (desarrollo gradual)"], correctOrder: [0, 1, 2], exp: "Primero surge el Niño, luego el Padre, y el Adulto se desarrolla gradualmente." },
+            { type: 'choice', q: "¿Qué es el 'contaminante' del Adulto?", opts: ["Cuando el Adulto toma el control", "Cuando el Padre o Niño interfieren en el Adulto", "Cuando hay un conflicto", "Cuando alguien miente"], correct: 1, exp: "Es cuando el Padre o Niño interfieren con el funcionamiento del Adulto." },
+            { type: 'choice', q: "¿Qué significa tener un Adulto contaminado?", opts: ["Ser muy racional", "Tener dificultades para decidir", "Distorsiones en el procesamiento objetivo", "Ser demasiado emocional"], correct: 2, exp: "Un Adulto contaminado tiene distorsiones en procesar la realidad." },
+            { type: 'choice', q: "¿Cómo se manifiesta la exclusión de un Estado del Yo?", opts: ["Cuando se usan los 3 estados", "Cuando un estado está infrautilizado", "Cuando hay demasiadas emociones", "Solo en situaciones de estrés"], correct: 1, exp: "La exclusión ocurre cuando un Estado está infrautilizado o ausente." }
+        ],
+        intermediate: [
+            { type: 'choice', q: "¿Qué es una transacción complementaria?", opts: ["Cuando hay conflicto", "Estímulo y respuesta en la misma dirección", "Cuando interviene un tercero", "Cuando están de acuerdo"], correct: 1, exp: "Es cuando la respuesta corresponde al Estado del Yo del estímulo." },
+            { type: 'choice', q: "¿Qué es una transacción cruzada?", opts: ["Cuando hay armonía", "La respuesta no corresponde al Estado esperado", "Cuando hay dos personas", "Cuando el mensaje es claro"], correct: 1, exp: "Es cuando la respuesta viene desde un Estado diferente." },
+            { type: 'choice', q: "¿Qué es una transacción ulterior?", opts: ["Comunicación directa", "Comunicación con mensaje oculto", "Cuando no hay comunicación", "Comunicación entre niños"], correct: 1, exp: "Tiene un mensaje social aparente pero psicológico diferente." },
+            { type: 'choice', q: "¿Cuál es el cuarto tipo de transacción?", opts: ["Simple", "Doble", "Angular", "Triangular"], correct: 2, exp: "La transacción angular tiene tres niveles: social, psicológico y existencial." },
+            { type: 'match', q: "Empareja el tipo de transacción:", pairs: [{ item: "Complementaria", match: "Estímulo y respuesta en la misma dirección" }, { item: "Cruzada", match: "Respuesta desde estado diferente" }, { item: "Ulterior", match: "Mensaje oculto a nivel psicológico" }, { item: "Angular", match: "Tres niveles: social, psicológico y existencial" }], exp: "Las 4 clasificaciones principales de transacciones." },
+            { type: 'choice', q: "¿Qué representa el Triángulo de Karpman?", opts: ["Ejercicio de meditación", "Roles: Víctima, Perseguidor, Salvador", "Un tipo de transacción", "Estados del Yo"], correct: 1, exp: "Los tres roles: Víctima, Perseguidor y Salvador." },
+            { type: 'choice', q: "¿Quién puede cambiar de rol en el Triángulo?", opts: ["Nadie", "Solo la Víctima", "Cualquiera de los tres", "Solo el Salvador"], correct: 2, exp: "Cualquiera de los tres puede cambiar de rol." },
+            { type: 'sequence', q: "Ordena las fases de un juego en el Triángulo:", items: ["Confianza inicial", "Cambio de rol sorpresivo", "Conclusión negativa (payoff)", "Resolución"], correctOrder: [0, 1, 2, 3], exp: "El ciclo: confianza → cambio → payoff → resolución." },
+            { type: 'choice', q: "¿Qué es 'Yes, But' (Sí, pero)?", opts: ["Técnica de negociación", "Juego donde se rechazan soluciones", "Un tipo de transacción", "Un estado del yo"], correct: 1, exp: "Juego donde se piden soluciones pero se rechazan." },
+            { type: 'choice', q: "¿Cuál es el 'payoff' en un juego?", opts: ["El premio", "La conclusión negativa", "El momento de inicio", "La solución"], correct: 1, exp: "Es la conclusión negativa que confirma el script." }
+        ],
+        advanced: [
+            { type: 'choice', q: "¿Qué es un 'script de vida' en AT?", opts: ["Guión teatral", "Plan consciente", "Programa inconsciente de la infancia", "Documento legal"], correct: 2, exp: "Es un programa inconsciente desarrollado en la infancia." },
+            { type: 'choice', q: "¿Qué son los 'rackets' en AT?", opts: ["Deporte", "Sentimientos falseados para obtener payoff", "Un tipo de transacción", "Estados del yo"], correct: 1, exp: "Son sentimientos falseados para confirmar el script." },
+            { type: 'choice', q: "¿Qué es la 'arqueología existencial'?", opts: ["Excavar ruinas", "Explorar decisiones de script de la infancia", "Meditación", "Diagnóstico"], correct: 1, exp: "Es descubrir las decisiones de la infancia que forman el script." },
+            { type: 'match', q: "Empareja conceptos de script:", pairs: [{ item: "Decision de script", match: "Creencia fundamental sobre la vida" }, { item: "Racket", match: "Sentimiento falseado" }, { item: "Payoff", match: "Conclusión negativa del juego" }, { item: "Gancho (hook)", match: "Estímulo que inicia el juego" }], exp: "Elementos centrales de scripts y juegos." },
+            { type: 'choice', q: "¿Cuál NO es un juego psicológico clásico?", opts: ["¿Por qué me haces esto?", "Sí, pero", "Pobre de mí", "¡Buena suerte!"], correct: 3, exp: "'¡Buena suerte!' no es un juego clásico." },
+            { type: 'choice', q: "¿Qué significa 'Driver' en AT?", opts: ["Conductor", "Mensajes restrictivos internalizados", "Terapia", "Estado del yo"], correct: 1, exp: "Son mensajes restrictivos que dirigen nuestro comportamiento." },
+            { type: 'case', q: "Caso: María siempre dice 'Nadie me quiere'. ¿Qué concepto aplica?", caseText: "María rechaza cariños y dice que nadie la quiere.", answer: "Racket / Script de rechazo", exp: "Usa un racket para confirmar su script de 'no merezco ser amada'." },
+            { type: 'sequence', q: "Ordena elementos de un juego:", items: ["Gancho", "Respuesta", "Cambio de rol", "Payoff", "Conmoción"], correctOrder: [0, 1, 2, 3, 4], exp: "Ciclo: gancho → respuesta → cambio → payoff → conmoción." },
+            { type: 'choice', q: "¿Qué es 'intimidad' en AT?", opts: ["Relación sexual", "Contacto auténtico entre personas", "Amistad superficial", "Comunicación grupal"], correct: 1, exp: "Es el contacto auténtico, libre de juegos." },
+            { type: 'choice', q: "¿Cuál es el objetivo de la terapia AT?", opts: ["Prescribir medicamentos", "Lograr autonomía", "Analizar el pasado", "Controlar"], correct: 1, exp: "Lograr autonomía: conciencia, intimidad y espontaneidad." }
+        ],
+        expert: [
+            { type: 'choice', q: "¿Qué es un 'contract' en terapia AT?", opts: ["Acuerdo comercial", "Acuerdo terapeuta-cliente para el cambio", "Documento legal", "Tipo de pregunta"], correct: 1, exp: "Es un acuerdo explícito sobre los objetivos del tratamiento." },
+            { type: 'choice', q: "¿Cuál es el nivel más alto de contrato?", opts: ["Comportamental", "Objetivos", "Existencial", "Grupo"], correct: 2, exp: "El contrato existencial aborda los propósitos fundamentales." },
+            { type: 'match', q: "Empareja tipos de contrato:", pairs: [{ item: "Contrato comportamental", match: "Cambio de conductas específicas" }, { item: "Contrato cognitivo", match: "Cambio de pensamientos" }, { item: "Contrato emocional", match: "Cambio de patrones emocionales" }, { item: "Contrato existencial", match: "Cambio de enfoque vital" }], exp: "Los contratos operan en diferentes niveles." },
+            { type: 'case', q: "Caso: Cliente quiere 'estar menos enfadado'. ¿Qué tipo de contrato?", caseText: "Cliente quiere estar menos enfadado para no gritar a su familia.", answer: "Contrato conductual", exp: "Es comportamental porque se enfoca en conductas específicas." },
+            { type: 'case', q: "Caso: Cliente evita hablar de su padre. ¿Qué intervención?", caseText: "El cliente cambia de tema cuando se menciona a su padre.", answer: "Trabajar la resistencia", exp: "La resistencia es parte del script, hay que explorarla." },
+            { type: 'sequence', q: "Ordena el proceso de contracting:", items: ["Identificar problema", "Negociar objetivos", "Establecer contrato", "Implementar cambios", "Evaluar"], correctOrder: [0, 1, 2, 3, 4], exp: "Proceso: identificar → negociar → establecer → implementar → evaluar." },
+            { type: 'choice', q: "¿Qué es el 're-decision' en AT?", opts: ["Nueva decisión sobre el pasado", "Cambiar de terapeuta", "Dejar la terapia", "Recuperar recuerdos"], correct: 0, exp: "Es tomar una nueva decisión sobre eventos pasados." },
+            { type: 'choice', q: "¿Qué significa 'autonomía' en AT?", opts: ["Ser independiente", "Conciencia, intimidad y espontaneidad", "No necesitar a nadie", "Vivir solo"], correct: 1, exp: "Es libertad de las limitaciones del script." },
+            { type: 'case', q: "Caso: Empresa contrata consultant AT. ¿Qué enfoque?", caseText: "Empresa quiere mejorar comunicación entre departamentos.", answer: "Análisis de transacciones", exp: "Analizar las transacciones entre departamentos." },
+            { type: 'choice', q: "¿Qué es el 'double-blind contract'?", opts: ["Entre dos personas", "Ambos ignoran el verdadero objetivo", "Legal", "Grupal"], correct: 1, exp: "Es cuando ni terapeuta ni cliente son conscientes del objetivo oculto." }
+        ]
+    };
+    const levelNames = { beginner: "Principiante", intermediate: "Intermedio", advanced: "Avanzado", expert: "Experto" };
+    let currentLevel = '', currentQuestion = 0, score = 0, answered = false, timerInterval = null, timeLeft = 120, currentQ = null, matchedPairs = [];
 
-        const levelNames = {
-            beginner: "Principiante",
-            intermediate: "Medio",
-            advanced: "Avanzado"
-        };
-
-        let currentLevel = '';
-        let currentQuestion = 0;
-        let score = 0;
-        let answered = false;
-
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-        }
-
-        function startQuiz(level) {
-            currentLevel = level;
-            currentQuestion = 0;
-            score = 0;
-            answered = false;
-            
-            document.getElementById('level-badge').textContent = levelNames[level];
-            showScreen('quiz-screen');
-            loadQuestion();
-        }
-
-        function loadQuestion() {
-            const q = questions[currentLevel][currentQuestion];
-            answered = false;
-            
-            document.getElementById('progress').textContent = `Pregunta ${currentQuestion + 1} de 5`;
-            document.getElementById('question').textContent = q.question;
-            
-            const optionsHtml = q.options.map((opt, i) => `
-                <div class="option" onclick="selectOption(${i})" data-index="${i}">
-                    <span class="letter">${String.fromCharCode(65 + i)}</span>
-                    <span>${opt}</span>
-                </div>
-            `).join('');
-            
-            document.getElementById('options').innerHTML = optionsHtml;
-            
-            const feedback = document.getElementById('feedback');
-            feedback.classList.remove('show', 'correct', 'incorrect');
-            document.getElementById('next-btn').disabled = true;
-        }
-
-        function selectOption(index) {
-            if (answered) return;
-            answered = true;
-            
-            const q = questions[currentLevel][currentQuestion];
-            const options = document.querySelectorAll('.option');
-            const isCorrect = index === q.correct;
-            
-            options.forEach((opt, i) => {
-                opt.classList.add('disabled');
-                if (i === q.correct) {
-                    opt.classList.add('correct');
-                } else if (i === index && !isCorrect) {
-                    opt.classList.add('incorrect');
-                }
-            });
-            
-            if (isCorrect) {
-                score++;
-            }
-            
-            const feedback = document.getElementById('feedback');
-            feedback.classList.add('show', isCorrect ? 'correct' : 'incorrect');
-            document.getElementById('feedback-title').textContent = isCorrect ? '✓ ¡Correcto!' : '✗ Incorrecto';
-            document.getElementById('feedback-text').textContent = q.explanation;
-            
-            document.getElementById('next-btn').disabled = false;
-            document.getElementById('next-btn').textContent = 
-                currentQuestion === 4 ? 'Ver resultados' : 'Siguiente pregunta';
-        }
-
-        function nextQuestion() {
-            currentQuestion++;
-            
-            if (currentQuestion >= 5) {
-                showResults();
-            } else {
-                loadQuestion();
-            }
-        }
-
-        function showResults() {
-            const percentage = (score / 5) * 100;
-            
-            document.getElementById('score').textContent = percentage;
-            document.getElementById('score-label').textContent = 
-                `Has acertado ${score} de 5 preguntas`;
-            
-            let message = '';
-            if (percentage === 100) {
-                message = '¡Excelente! Dominas este nivel 🎉';
-            } else if (percentage >= 80) {
-                message = '¡Muy bien! Tienes un gran conocimiento 🏆';
-            } else if (percentage >= 60) {
-                message = '¡Buen trabajo! Pero puedes mejorar 📚';
-            } else if (percentage >= 40) {
-                message = 'Tienes la base, sigue estudiando 💪';
-            } else {
-                message = '¡Anímate a aprender más sobre AT! 🌱';
-            }
-            
-            document.getElementById('result-message').textContent = message;
-            document.getElementById('result-details').textContent = 
-                `Nivel: ${levelNames[currentLevel]} | Puntuación: ${score}/5`;
-            
-            showScreen('results-screen');
-        }
-
-        function restartGame() {
-            startQuiz(currentLevel);
-        }
-
-        function goToLevelSelection() {
-            showScreen('level-screen');
-        }
+    function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    function startTimer() { timeLeft = 120; updateTimerDisplay(); timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timerInterval); handleTimeUp(); } }, 1000); }
+    function updateTimerDisplay() { const mins = Math.floor(timeLeft / 60), secs = timeLeft % 60; document.getElementById('time-display').textContent = mins + ':' + secs.toString().padStart(2, '0'); document.getElementById('timer').classList.toggle('warning', timeLeft <= 30); }
+    function handleTimeUp() { answered = true; document.getElementById('next-btn').disabled = false; showFeedback(false, '¡Se acabó el tiempo!'); }
+    function startQuiz(level) { currentLevel = level; currentQuestion = 0; score = 0; answered = false; document.getElementById('level-badge').textContent = levelNames[level]; showScreen('quiz-screen'); loadQuestion(); startTimer(); }
+    function loadQuestion() { clearInterval(timerInterval); startTimer(); currentQ = questions[currentLevel][currentQuestion]; answered = false; document.getElementById('progress').textContent = (currentQuestion + 1) + '/10'; document.getElementById('progress-bar').style.width = ((currentQuestion + 1) * 10) + '%'; document.getElementById('question-type').textContent = { choice: 'Selección múltiple', match: 'Emparejar', sequence: 'Ordenar', case: 'Caso práctico' }[currentQ.type] || 'Pregunta'; document.getElementById('question').textContent = currentQ.q; document.getElementById('options').innerHTML = ''; document.getElementById('feedback').classList.remove('show'); document.getElementById('next-btn').disabled = true; if (currentQ.type === 'choice') renderChoiceQuestion(currentQ); else if (currentQ.type === 'match') renderMatchQuestion(currentQ); else if (currentQ.type === 'sequence') renderSequenceQuestion(currentQ); else if (currentQ.type === 'case') renderCaseQuestion(currentQ); }
+    function renderChoiceQuestion(q) { document.getElementById('options').innerHTML = q.opts.map((opt, i) => '<div class="option" onclick="selectOption(' + i + ')" data-index="' + i + '"><span class="letter">' + String.fromCharCode(65 + i) + '</span><span>' + opt + '</span></div>').join(''); }
+    function renderMatchQuestion(q) { matchedPairs = []; const items = [...q.pairs].sort(() => Math.random() - 0.5), matches = [...q.pairs].sort(() => Math.random() - 0.5); let html = '<div class="drag-container"><div class="drag-column"><h4>Conceptos</h4>'; items.forEach(p => { html += '<div class="drag-item" draggable="true" data-item="' + p.item + '" data-match="' + p.match + '" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" ondrop="drop(event)">' + p.item + '</div>'; }); html += '</div><div class="drag-column"><h4>Definiciones</h4>'; matches.forEach(p => { html += '<div class="drop-zone" data-accept="' + p.match + '" ondragover="dragOver(event)" ondrop="drop(event)">Arrastra aquí: ' + p.match + '</div>'; }); html += '</div></div>'; document.getElementById('options').innerHTML = html; }
+    let draggedItem = null;
+    function dragStart(e) { draggedItem = e.target; }
+    function dragEnd(e) { draggedItem = null; }
+    function dragOver(e) { e.preventDefault(); e.target.closest('.drop-zone')?.classList.add('drag-over'); }
+    function drop(e) { e.preventDefault(); const dropZone = e.target.closest('.drop-zone'); if (dropZone && draggedItem) { const itemData = draggedItem.getAttribute('data-item'), matchData = draggedItem.getAttribute('data-match'), acceptData = dropZone.getAttribute('data-accept'); if (matchData === acceptData) { score++; draggedItem.classList.add('matched'); } matchedPairs.push({ item: itemData, correct: matchData === acceptData }); dropZone.innerHTML = itemData; dropZone.classList.add('filled'); dropZone.classList.remove('drag-over'); if (matchedPairs.length === document.querySelectorAll('.drag-item').length) { answered = true; document.getElementById('next-btn').disabled = false; showFeedback(matchedPairs.every(p => p.correct), currentQ.exp); } } }
+    function renderSequenceQuestion(q) { let html = '<div class="sequence-container">'; q.items.forEach((item, i) => { html += '<div class="sequence-item" draggable="true" data-original="' + i + '" ondragstart="seqDragStart(event)" ondragend="seqDragEnd(event)" ondragover="seqDragOver(event)" ondrop="seqDrop(event)"><span class="order-num">' + (i + 1) + '</span><span>' + item + '</span></div>'; }); html += '</div><button class="btn" onclick="checkSequence()" style="margin-top:15px">Verificar orden</button>'; document.getElementById('options').innerHTML = html; }
+    let seqDraggedItem = null;
+    function seqDragStart(e) { seqDraggedItem = e.target; }
+    function seqDragEnd(e) { seqDraggedItem = null; }
+    function seqDragOver(e) { e.preventDefault(); }
+    function seqDrop(e) { e.preventDefault(); const item = e.target.closest('.sequence-item'); if (item && seqDraggedItem && item !== seqDraggedItem) { const container = document.querySelector('.sequence-container'); if (item.nextSibling === seqDraggedItem) container.insertBefore(seqDraggedItem, item); else if (item.previousSibling === seqDraggedItem) container.insertBefore(item, seqDraggedItem); else { const items = [...container.querySelectorAll('.sequence-item')]; const fromIdx = items.indexOf(seqDraggedItem), toIdx = items.indexOf(item); if (fromIdx < toIdx) item.after(seqDraggedItem); else item.before(seqDraggedItem); } } }
+    function checkSequence() { const items = [...document.querySelectorAll('.sequence-item')].map(i => parseInt(i.getAttribute('data-original'))); const correct = JSON.stringify(items) === JSON.stringify(currentQ.correctOrder); if (correct) score++; answered = true; document.getElementById('next-btn').disabled = false; showFeedback(correct, currentQ.exp); }
+    function renderCaseQuestion(q) { document.getElementById('options').innerHTML = '<div class="case-study"><h4>📋 Caso clínico</h4><p>' + q.caseText + '</p></div><div class="options">' + q.opts.map((opt, i) => '<div class="option" onclick="selectOption(' + i + ')" data-index="' + i + '"><span class="letter">' + String.fromCharCode(65 + i) + '</span><span>' + opt + '</span></div>').join('') + '</div>'; }
+    function selectOption(index) { if (answered) return; answered = true; const q = currentQ; const options = document.querySelectorAll('.option'); let isCorrect = false; if (q.type === 'choice') { isCorrect = index === q.correct; } else if (q.type === 'case') { isCorrect = q.opts[index].includes(q.answer) || q.answer.includes(q.opts[index]); } options.forEach((opt, i) => { opt.classList.add('disabled'); if ((q.type === 'choice' && i === q.correct) || (q.type === 'case' && (q.opts[i].includes(q.answer) || q.answer.includes(q.opts[i])))) opt.classList.add('correct'); else if (i === index && !isCorrect) opt.classList.add('incorrect'); }); if (isCorrect) score++; showFeedback(isCorrect, q.exp); document.getElementById('next-btn').disabled = false; document.getElementById('next-btn').textContent = currentQuestion >= 9 ? 'Ver resultados' : 'Siguiente'; }
+    function showFeedback(isCorrect, text) { const fb = document.getElementById('feedback'); fb.classList.add('show', isCorrect ? 'correct' : 'incorrect'); document.getElementById('feedback-title').textContent = isCorrect ? '✓ ¡Correcto!' : '✗ Incorrecto'; document.getElementById('feedback-text').textContent = text; }
+    function nextQuestion() { currentQuestion++; if (currentQuestion >= 10) showResults(); else loadQuestion(); }
+    function showResults() { clearInterval(timerInterval); const percentage = (score / 10) * 100; document.getElementById('score').textContent = percentage; document.getElementById('score-label').textContent = 'Has acertado ' + score + ' de 10 preguntas'; let message = ''; if (percentage === 100) message = '¡Excelente! Dominas este nivel 🎉'; else if (percentage >= 80) message = '¡Muy bien! 🏆'; else if (percentage >= 60) message = '¡Buen trabajo! 📚'; else if (percentage >= 40) message = 'Tienes la base, sigue estudiando 💪'; else message = '¡Anímata a aprender más! 🌱'; document.getElementById('result-message').textContent = message; document.getElementById('result-details').textContent = 'Nivel: ' + levelNames[currentLevel] + ' | Puntuación: ' + score + '/10'; showScreen('results-screen'); }
+    function restartGame() { startQuiz(currentLevel); }
+    function goToLevelSelection() { showScreen('level-screen'); }
     </script>
 </body>
 </html>
